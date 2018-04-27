@@ -1,0 +1,449 @@
+\documentclass[12pt]{article}
+
+\usepackage{graphicx}
+\usepackage{paralist}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{hhline}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{multicol}
+
+\oddsidemargin 0mm
+\evensidemargin 0mm
+\textwidth 160mm
+\textheight 200mm
+\renewcommand\baselinestretch{1.0}
+
+\pagestyle {plain}
+\pagenumbering{arabic}
+
+\newcounter{stepnum}
+
+%% Comments
+
+\usepackage{color}
+
+\newif\ifcomments\commentstrue
+
+\ifcomments
+\newcommand{\authornote}[3]{\textcolor{#1}{[#3 ---#2]}}
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+\else
+\newcommand{\authornote}[3]{}
+\newcommand{\todo}[1]{}
+\fi
+
+\newcommand{\wss}[1]{\authornote{blue}{SS}{#1}}
+
+\title{Assignment 4, Part 1, Specification}
+\author{Bilal Jaffry}
+
+\begin {document}
+
+\maketitle
+
+The purpose of this software design exercise is to design and implement a functional 
+version of the solitaire card game played using a deck of cards. This documentation shows the complete specification for implementation and subsequent testing. 
+
+\newpage
+
+\section* {Card  ADT Module}
+
+\subsection*{Module}
+
+Card
+
+\subsection* {Uses}
+
+N/A
+
+\subsection* {Syntax}
+
+\subsubsection* {Exported Constants}
+numOfRanks = 13\\
+numOfSuits = 4
+
+\subsubsection* {Exported Types}
+Card = ?\\\\
+RANK = \{ACE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING\}\\ \\
+SUIT = \{SPADE, HEART, CLUB, DIAMOND\}
+
+\subsubsection* {Exported Access Programs}
+\begin{tabular}{| l | l | l | l |}
+\hline
+\textbf{Routine name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions}\\
+\hline
+Card &  SUIT, RANK & Card &\\
+\hline
+getRank & ~ & RANK & \\
+\hline
+getSuit& ~ & SUIT & \\
+\hline
+setRank & RANK  &~   & \\
+\hline
+setSuit& SUIT &~   &\\
+\hline
+\end{tabular}
+
+\subsection* {Semantics}
+
+\subsubsection* {State Variables}
+$st:$ SUIT\\
+$rnk:$ RANK
+
+
+\subsubsection* {State Invariant}
+
+None
+\subsubsection* {Assumptions}
+
+The constructor Card is called for each object before instance before any other access routine is called for that object. The constructor cannot be called on an existing object.
+
+\subsubsection* {Access Routine Semantics}
+
+Card($s, r$):
+\begin{itemize}
+\item transition: $st,rnk := s, r$
+\item output: $out := \mathit{self}$
+\item exception: None
+\end{itemize}
+
+\noindent getRank():
+\begin{itemize}
+\item output: $out := rnk$
+\item exception: None
+\end{itemize}
+
+\noindent getSuit():
+\begin{itemize}
+\item output: $out := st$
+\item exception: None
+\end{itemize}
+
+\noindent setRank($r$):
+\begin{itemize}
+\item transition: $rnk := r$
+\item exception: None
+\end{itemize}
+
+\noindent setSuit($s$):
+\begin{itemize}
+\item transition: $st := s$
+\item exception: None
+\end{itemize}
+
+\newpage
+
+\section* {Deck ADT Module}
+
+\subsection*{Template Module}
+
+Deck 
+
+\subsection* {Uses}
+Card from CardADT.
+\subsection* {Syntax}
+
+\subsubsection* {Exported Constants}
+MAX\_CARDS = 52
+
+\subsubsection* {Exported Types}
+Deck = ?
+
+\subsubsection* {Exported Access Programs}
+
+\begin{tabular}{| l | l | l | l |}
+\hline
+\textbf{Routine name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions}\\
+\hline
+Deck &  & Deck & \\
+\hline
+dealCard & ~ &Card & outside\_bounds \\
+\hline
+shuffleDeck & ~ &  & \\
+\hline
+
+\end{tabular}
+
+\subsection* {Semantics}
+
+\subsubsection* {State Variables}
+
+$numCard$: $\mathbb{Z}$ \\
+$deckOfCards$: seq of Card
+
+\subsubsection* {State Invariant}
+
+None
+
+\subsubsection* {Assumptions}
+
+The constructor Deck is called for each object instance before any other
+access routine is called for that object.  The constructor cannot be called on
+an existing object.
+
+\subsubsection* {Access Routine Semantics}
+
+Deck():
+\begin{itemize}
+\item transition: $\forall (i : \mathbb{N} | i \in MAX\_CARDS: deckOfCards[i] = Card)$
+\item output: $out := \mathit{self}$
+\item exception: None
+\end{itemize}
+
+\noindent dealCard():
+\begin{itemize}
+\item transition: $numCard = numCard + 1$
+\item output: $out := deckOfCards[numCard]$
+\item exception:  (numCard $>$ MAX\_CARDS $|$  numCard $<$ 0) $\implies$ outside\_bounds()
+\end{itemize}
+
+\noindent shuffleDeck():
+\begin{itemize}
+\item transition: $\forall$(i : $\mathbb{N} |$ i $\in$ MAX\_CARDS - 1 : swap(deckOfCards(i),deckOfCards(i+1))
+\item exception: None
+\end{itemize}
+
+ \subsection* {Local Functions} 
+ \noindent swap: Card $\times$ Card $\rightarrow$ None\\
+\noindent swap ($a$, $b$):  Takes two cards and swaps them around. 
+$\equiv$ (a = b, b = a)
+
+
+\newpage
+
+\section* {Board Module}
+
+\subsection*{Template Module}
+
+Board
+
+\subsection* {Uses}
+Deck from DeckADT and Card from CardADT.
+
+
+\subsection* {Syntax}
+
+\subsubsection* {Exported Constants}
+NUM\_OF\_FREECELLS = 4;\\
+NUM\_OF\_HOMECELLS = 4;\\
+NUM\_OF\_GAMECELLS = 8;
+\subsubsection* {Exported Types}
+Board = ?
+
+
+\subsubsection* {Exported Access Programs}
+
+\begin{tabular}{| l | l | l | l |}
+\hline
+\textbf{Routine name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions}\\
+\hline
+Board & ~ & Board & ~\\
+\hline
+moveGameToGame & $\mathbb{Z}$, $\mathbb{Z}$, $\mathbb{Z}$ & & invalid\_move(),outside\_bounds() \\
+\hline
+moveGameToHome & $\mathbb{Z}$, $\mathbb{Z}$ & &invalid\_card(),invalid\_move(),empty\_outside\_bounds \\
+\hline
+moveGameToFree & $\mathbb{Z}$, $\mathbb{Z}$ & &invalid\_move(),outside\_bounds() \\
+\hline
+moveFreeToGame & $\mathbb{Z}$, $\mathbb{Z}$ & &invalid\_move(),empty\_outside\_bounds() \\
+\hline
+moveFreeToHome & $\mathbb{Z}$, $\mathbb{Z}$ & &invalid\_card(),invalid\_move(),empty\_cells() \\
+\hline
+WinGame & ~ & $\mathbb{B}$  & ~\\
+\hline
+isEmptyGameCell & $\mathbb{Z}$ &$\mathbb{B}$ & outside\_bounds() \\
+\hline
+isEmptyHomeCell & $\mathbb{Z}$ &$\mathbb{B}$ &outside\_bounds() \\
+\hline
+isEmptyFreeCell & $\mathbb{Z}$ &$\mathbb{B}$&outside\_bounds() \\
+\hline
+suitMatch & SUIT, SUIT &$\mathbb{B}$ &\\
+\hline
+rankMatch & RANK, RANK &$\mathbb{B}$ & \\
+\hline
+getGameCells &  & seq of (seq of Card ) & empty\_cells() \\
+\hline
+getFreeCells &  & seq of Card  & empty\_cells() \\
+\hline
+getHomeCells &  & seq of (seq of Card )  & empty\_cells() \\
+\hline
+setGameCells & Card, $\mathbb{Z}$ & &outside\_bounds() \\
+\hline
+
+\hline
+\end{tabular}
+
+\subsection* {Semantics}
+
+\subsubsection* {State Variables}
+
+$HomeCells$: seq of (seq of Card)\\
+$FreeCells$: seq of Card\\
+$GameCells$: seq of (seq of Card)\\ 
+$dck$: Deck\\
+$win$: $\mathbb{B}$\\
+$emptyFreeCell$: seq of $\mathbb{B}$
+
+\subsubsection* {State Invariant}
+
+None
+
+\subsubsection* {Assumptions}
+
+The constructor Board is called for each object instance before any other
+access routine is called for that object.  The constructor cannot be called on
+an existing object.
+
+\subsubsection* {Access Routine Semantics}
+
+Board():
+\begin{itemize}
+\item transition: $|HomeCells|, |GameCells|, |FreeCells|, win $ :=  \\NUM\_OF\_HOMECELLS, NUM\_OF\_FREECELLS, NUM\_OF\_GAMECELLS,\\ FALSE\\\\
+transition: dck.shuffleDeck(), $\forall (i : \mathbb{N} | i \in$ MAX\_CARDS: $(\forall ( j : \mathbb{N} | j \in$  NUM\_OF\_GAMECELLS: \,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\, GameCells[j] = dck.dealCard() ))) 
+ 
+\item output: $out := \mathit{self}$
+\item exception: None
+\end{itemize}
+
+\noindent moveGameToGame(numOfCards, col1, col2):
+\begin{itemize}
+\item transition: \\$\forall$ (i :$\mathbb{N}$$\vee$i $\in$ numOfCards: GameCells[col2][$|$GameCells[col2]$|$-1] = GameCells[col1][$|$GameCells[col1]$|$-1])
+\item exception: (numOfCards $>$ availableMoves(col2)) $\vee$ ($\lnot$ isEmptyGameCell(col1)) \\$\vee$ \\ 
+($\lnot$ rankMatch(GameCells[col1][$|$GameCells[col1]$|$-1].getRank(), GameCells[col2][$|$GameCells[col2]$|$-1].getRank()))\\ $\vee$\\
+($\lnot$ suitMatch(GameCells[col2][$|$GameCells[col2]$|$-1].getSuit(),(GameCells[col1][$|$GameCells[col1]$|$-1].getSuit()))
+  $\implies$ invalid\_move()\\\\
+ exception: ($\lnot$ validCol(col1) $\vee$ $\lnot$ validCol(col2)) $\implies$ outside\_bounds()
+  
+\end{itemize}
+
+\noindent  moveGameToHome(gameCol, homeCol):
+\begin{itemize}
+\item transition: HomeCells[homeCol][$|$HomeCells[homeCol]$|-1$] \\= GameCells[gameCol][$|$GameCells[gameCol]$|-1$]
+\item exception: \\$\lnot$(isEmptyGameCell(gameCol) $\wedge$ validGameCol(gameCol) $\wedge$ validHomeCol(homeCol))$\implies$ empty\_outside\_bounds()\\\\\\
+
+exception: \\ $\lnot$ rankMatch(GameCells[gameCol][$|$GameCells[gameCol]$|-1$].getRank(),\\ HomeCells[homeCol][$|$HomeCells[homeCol]$|-1$].getRank())
+\\ $\vee$ \\
+$\lnot$ suitMatch(GameCells[gameCol][$|$GameCells[gameCol]$|-1$].getSuit(),\\ HomeCells[homeCol][$|$HomeCells[homeCol]$|-1$].getSuit()) $\implies$ invalid\_move()
+\end{itemize}
+
+\noindent moveGameToFree(gameCol, freeCol):
+\begin{itemize}
+\item transition:\\\\ FreeCells[freeCol], emptyFreeCell[freeCol] :=  \\GameCells[gameCol][$|$GameCells[gameCol]$|-1$],  emptyFreeCell[freeCol] = FALSE
+\item exception: $\lnot$ emptyFreeCell[freeCol] $\vee$ isEmptyGameCell(gameCol) $\implies$ invalid\_move() \\
+\end{itemize}
+
+%%%%%
+\noindent moveFreeToGame(freeCol, gameCol):
+\begin{itemize}
+\item transition: \\\\GameCells[gameCol][$|$GameCells[gameCol]$|$ - 1], emptyFreeCell[freeCol] :=\\ FreeCells[freeCol], TRUE
+\item exception:\\ $\lnot$ rankMatch(GameCells[gameCol][$|$GameCells[gameCol]$|$-1].getRank(),\\ FreeCells[freeCol].getRank())
+\\ $\vee$ \\
+$\lnot$ suitMatch(FreeCells[freeCol].getSuit(),\\ GameCells[gameCol][$|$GameCells[gameCol]$|$ - 1].getSuit()) $\implies$ invalid\_move()\\\\
+
+exception:    isEmptyFreeCell(freeCol) $\vee$ $\lnot$ validGameCol(gameCol)  $\vee$ $\lnot$ validFreeCol(freeCol) $\implies$ empty\_outside\_cells() \\
+
+\end{itemize}
+%%%%%%
+
+
+\noindent moveFreeToHome(freeCol, homeCol):
+\begin{itemize}
+\item transition:\\\\ HomeCells[homeCol][$|$HomeCells[homeCol]$|$ - 1], emptyFreeCell[freeCol] :=  \\FreeCells[freeCol],  emptyFreeCell[freeCol] = TRUE
+\item exception: isEmptyFreeCell(gameCol) $\implies$ empty\_cells() \\\\
+exception: \\ $\lnot$ rankMatch(FreeCells[freeCol].getRank(), \\HomeCells[homeCol][$|$HomeCells[homeCol]$|$-1].getRank())
+\\ $\vee$ \\
+$\lnot$ suitMatch(FreeCells[freeCol].getSuit(),\\HomeCells[homeCol][$|$HomeCells[homeCol]$|$ - 1].getSuit()) $\implies$ invalid\_move()\\\\
+\end{itemize}
+
+
+
+\noindent isEmptyGameCell(col):
+\begin{itemize}
+\item output: $out := \mbox{GameCells[col].empty()}$
+\item exception: $\lnot$ (0 $\leq$ col $<$ NUM\_OF\_GAMECELLS) $\implies$ outside\_bounds()
+\end{itemize}
+
+\noindent isEmptyHomeCell(col):
+\begin{itemize}
+\item output: $out := \mbox{HomeCells[col].empty()}$
+\item exception: $\lnot$ (0 $\leq$ col $<$ NUM\_OF\_HOMECELLS) $\implies$ outside\_bounds()
+\end{itemize}
+
+\noindent isEmptyFreeCell(col):
+\begin{itemize}
+\item output: $out := \mbox{emptyFreeCell[col]}$
+\item exception: $\lnot$ (0 $\leq$ col $<$ NUM\_OF\_FREECELLS) $\implies$ outside\_bounds()
+\end{itemize}
+
+\noindent getGameCells():
+\begin{itemize}
+\item output: $out := \mbox{GameCells}$
+\item exception:  GameCells.empty() $\implies$ empty\_cells()
+\end{itemize}
+
+\noindent getHomeCells():
+\begin{itemize}
+\item output: $out := \mbox{HomeCells}$
+\item exception:  HomeCells.empty() $\implies$ empty\_cells()
+\end{itemize}
+
+\noindent getFreeCells():
+\begin{itemize}
+\item output: $out := \mbox{FreeCells}$
+\item exception:  FreeCells.empty() $\implies$ empty\_cells()
+\end{itemize}
+
+\noindent setGameCells(a, i):
+\begin{itemize}
+\item transition: $\mbox{GameCells[i]} || \,\, \langle\,\,\,  a \,\,\,  \rangle$
+\item exception: $\lnot$ validGameCol(i) $\implies$ outside\_bounds()
+\end{itemize}
+
+\noindent rankMatch(a, b):
+\begin{itemize}
+\item output: a $-$ b $\equiv$ 1
+\item exception: None
+\end{itemize}
+
+\noindent suitMatch(a, b):
+\begin{itemize}
+\item output: (a + 3 $\equiv$ b) $\vee$ (a $-$ 3 $\equiv$ b ) $\vee$ (a + 1 $\equiv$ b) $\vee$ (a $-$1 $\equiv$ b)
+\item exception: None
+\end{itemize}
+
+
+\noindent WinGame():
+\begin{itemize}
+\item output: +(i : $\mathbb{N} |$ i $\in$ NUM\_OF\_HOMECELLS $\wedge$ $|$HomeCells[i]$|$ $\equiv$ numOfRanks: 1) $\equiv$ NUM\_OF\_HOMECELLS
+\item exception: None
+\end{itemize}
+
+
+ \subsection* {Local Functions} 
+ 
+ \noindent validGameCol: $\mathbb{Z} \rightarrow \mathbb{B}$\\
+\noindent $\mbox{validGameCol}(gameCol) \equiv 0 \leq gameCol \leq (\mbox{NUM\_OF\_GAMECELLS})$\\
+ 
+ \noindent validFreeCol: $\mathbb{Z} \rightarrow \mathbb{B}$\\
+\noindent $\mbox{validFreeCol}(freeCol) \equiv 0 \leq freeCol \leq (\mbox{NUM\_OF\_FREECELLS})$\\
+ 
+ \noindent validGameCol: $\mathbb{Z} \rightarrow \mathbb{B}$\\
+\noindent $\mbox{validHomeCol}(homeCol) \equiv 0 \leq homeCol \leq (\mbox{NUM\_OF\_HOMECELLS})$\\
+
+ \noindent availableMoves $\mathbb{Z} \rightarrow \mathbb{Z}$\\
+\noindent $\mbox{availableMoves}(targetCol) \equiv$\\\\ 
+$\mbox{freeSpots} =  +(i : \mathbb{N}| i \in  \mbox{NUM\_OF\_FREECELLS} \wedge \mbox{isEmptyFreeCell(i)}: 1)$\\
+gameSpots = +(j : $\mathbb{N}| j \in  \mbox{NUM\_OF\_GAMECELLS} \wedge \mbox{isEmptyGameCell(j)}: 1) \\ \vee -(k : \mathbb{N} | k = \mbox{targetCol} : -1)$ \\\\
+$\implies$ availableMoves = freeSpots $\times$ $2^{gameSpots}$
+
+
+
+
+
+
+
+
+
+\end {document}
